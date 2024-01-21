@@ -1,0 +1,143 @@
+openapi: "3.0.0"
+info:
+  title: EWallet
+  version: "1.0.0"
+tags:
+  - name: Wallet
+paths:
+  /api/v1/wallet:
+    post:
+      summary: Создание кошелька
+      description: |
+        Создает новый кошелек с уникальным ID. Идентификатор генерируется сервером.
+
+        Созданный кошелек должен иметь сумму 100.0 у.е. на балансе
+      tags: ["Wallet"]
+      responses:
+        "200":
+          description: Кошелек создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+        "400":
+          description: Ошибка в запросе
+  /api/v1/wallet/{walletId}/send:
+    parameters:
+      - $ref: "#/components/parameters/walletId"
+    post:
+      summary: Перевод средств с одного кошелька на другой
+      tags: ["Wallet"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: TransactionRequest
+              description: Запрос перевода средств
+              required:
+                - to
+                - amount
+              properties:
+                to:
+                  type: string
+                  description: ID кошелька, куда нужно перевести деньги
+                  example: "eb376add88bf8e70f80787266a0801d5"
+                amount:
+                  type: number
+                  description: Сумма перевода
+                  minimum: 0.0
+                  example: 100.0
+      responses:
+        "200":
+          description: Перевод успешно проведен
+        "404":
+          description: Исходящий кошелек не найден
+        "400":
+          description: Ошибка в пользовательском запросе или ошибка перевода
+  /api/v1/wallet/{walletId}/history:
+    parameters:
+      - $ref: "#/components/parameters/walletId"
+    get:
+      summary: Получение историй входящих и исходящих транзакций
+      description: Возвращает историю транзакций по указанному кошельку.
+      tags: ["Wallet"]
+      responses:
+        "200":
+          description: История транзакций получена
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  title: Transaction
+                  description: Денежный перевод
+                  required:
+                    - time
+                    - from
+                    - to
+                    - amount
+                  properties:
+                    time:
+                      type: string
+                      format: date-time
+                      description: Дата и время перевода
+                    from:
+                      type: string
+                      description: ID исходящего кошелька
+                      example: "5b53700ed469fa6a09ea72bb78f36fd9"
+                    to:
+                      type: string
+                      description: ID входящего кошелька
+                      example: "eb376add88bf8e70f80787266a0801d5"
+                    amount:
+                      type: number
+                      description: Сумма перевода
+                      example: 30.0
+        "404":
+          description: Указанный кошелек не найден
+  /api/v1/wallet/{walletId}:
+    parameters:
+      - $ref: "#/components/parameters/walletId"
+    get:
+      summary: Получение текущего состояния кошелька
+      tags: ["Wallet"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+        "404":
+          description: Указанный кошелек не найден
+components:
+  parameters:
+    walletId:
+      name: walletId
+      in: path
+      required: true
+      description: ID кошелька
+      schema:
+        $ref: "#/components/schemas/Wallet/properties/id"
+  schemas:
+    Wallet:
+      type: object
+      title: Wallet
+      description: Состояние кошелька
+      required:
+        - id
+        - balance
+      properties:
+        id:
+          type: string
+          description: Уникальный ID кошелька
+          example: "5b53700ed469fa6a09ea72bb78f36fd9"
+        balance:
+          type: number
+          format: float
+          description: Баланс кошелька
+          minimum: 0.0
+          example: 100.0
