@@ -9,11 +9,13 @@ import (
 
 type Config struct {
 	Host  string `json:"host"`
+	DB    string `json:"dsn"`
 	CFile string
 }
 
 type F struct {
 	host  *string
+	db    *string
 	cFile *string
 }
 
@@ -23,6 +25,7 @@ const addr = "localhost:8080"
 
 func init() {
 	f.host = flag.String("a", addr, "-a=")
+	f.db = flag.String("d", "", "-d=db")
 	f.cFile = flag.String("c", "", "config file")
 
 }
@@ -32,7 +35,11 @@ func New() (c Config) {
 	if envHost := os.Getenv("HOST"); envHost != "" {
 		f.host = &envHost
 	}
+	if envDB := os.Getenv("DATABASE_DSN"); envDB != "" {
+		f.db = &envDB
+	}
 	c.Host = *f.host
+	c.DB = *f.db
 	c.CFile = *f.cFile
 	file, err := os.Open(c.CFile)
 	if err != nil {

@@ -29,3 +29,7 @@ func (s *Handler) Start() {
 		return
 	}
 }
+
+func (s *Handler) CreateWallet(c *gin.Context) {
+
+}
