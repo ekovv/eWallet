@@ -69,7 +69,11 @@ func (s *Service) Transaction(from string, to string, amount float64) error {
 			return fmt.Errorf("didn't take from db: %w", err)
 		}
 	}
+	if balance-amount < 0 {
+		return fmt.Errorf("bad amount")
+	}
 	balance = balance - amount
+
 	err = s.storage.SaveWallet(idOfWallet, balance)
 	if err != nil {
 		s.logger.Info("didn't save new balance for from person")

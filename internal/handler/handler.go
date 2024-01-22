@@ -74,6 +74,10 @@ func (s *Handler) Transactions(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 			return
 		}
+		if errors.Is(err, fmt.Errorf("bad amount")) {
+			c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
