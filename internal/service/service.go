@@ -20,19 +20,25 @@ func NewService(storage domains.Storage) *Service {
 	return &Service{storage: storage, logger: logger}
 }
 
-func (s *Service) GenerateWallet() (string, error) {
+func (s *Service) GenerateWallet() (string, float64, error) {
 	id, err := s.GenerateID()
 	if err != nil {
 		s.logger.Info("can't create id")
-		return "", err
+		return "", 0.0, err
 	}
 	balance := 100.0
+	err = s.storage.SaveWallet(id, balance)
+	if err != nil {
+		s.logger.Info("didn't save in db")
+		return "", 0.0, err
+	}
+	return id, balance, nil
 }
 
 func (s *Service) GenerateID() (string, error) {
 	hd := hashids.NewData()
 	hd.Salt = "my salt"
-	hd.MinLength = 8
+	hd.MinLength = 30
 	h, err := hashids.NewWithData(hd)
 	if err != nil {
 		s.logger.Info("can't create HashID")

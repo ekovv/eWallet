@@ -1,5 +1,5 @@
 CREATE TABLE wallets (
     id SERIAL PRIMARY KEY,
     idOfWallet TEXT,
-    balance NUMERIC(10, 2)
+    balance NUMERIC(10, 1)
 );

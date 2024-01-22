@@ -47,6 +47,16 @@ func (s *DBStorage) CheckConnection() error {
 	return nil
 }
 
-func (s *DBStorage) SaveWallet(id string, balance float64) error {
+func (s *DBStorage) Close() error {
+	return s.conn.Close()
+}
 
+func (s *DBStorage) SaveWallet(id string, balance float64) error {
+	insertQuery := `INSERT INTO wallets (idOfWallet, balance) VALUES ($1, $2)`
+	_, err := s.conn.Exec(insertQuery, id, balance)
+
+	if err != nil {
+		return fmt.Errorf("failed to save id and balance in db: %v", err)
+	}
+	return nil
 }

@@ -1,5 +1,5 @@
 package domains
 
 type Service interface {
-	GenerateWallet() (string, error)
+	GenerateWallet() (string, float64, error)
 }
