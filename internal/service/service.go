@@ -2,6 +2,8 @@ package service
 
 import (
 	"eWallet/internal/domains"
+	"errors"
+	"fmt"
 	"github.com/speps/go-hashids/v2"
 	"go.uber.org/zap"
 	"math/rand"
@@ -54,4 +56,34 @@ func (s *Service) GenerateID() (string, error) {
 	}
 
 	return hash, nil
+}
+
+func (s *Service) Transaction(from string, to string, amount float64) error {
+	idOfWallet, balance, err := s.storage.TakeWallet(from)
+	if err != nil {
+		if errors.Is(err, fmt.Errorf("no idOfWallet from person")) {
+			s.logger.Info("no idOfWallet from person")
+			return fmt.Errorf("no idOfWallet from person")
+		} else {
+			s.logger.Info("didn't take from db")
+			return fmt.Errorf("didn't take from db: %w", err)
+		}
+	}
+	balance = balance - amount
+	err = s.storage.SaveWallet(idOfWallet, balance)
+	if err != nil {
+		s.logger.Info("didn't save new balance for from person")
+		return fmt.Errorf("didn't save new balance for from person: %w", err)
+	}
+	err = s.storage.UpdateWallet(to, amount)
+	if err != nil {
+		if errors.Is(err, fmt.Errorf("no idOfWallet to person")) {
+			s.logger.Info("no idOfWallet to person")
+			return fmt.Errorf("no idOfWallet to person")
+		} else {
+			s.logger.Info("didn't update to db")
+			return fmt.Errorf("didn't update to db: %w", err)
+		}
+	}
+	return nil
 }
