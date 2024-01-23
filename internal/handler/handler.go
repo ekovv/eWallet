@@ -47,6 +47,7 @@ func (s *Handler) CreateWallet(c *gin.Context) {
 		HandlerErr(c, err)
 		return
 	}
+
 	c.Status(http.StatusOK)
 	c.Writer.Write(bytes)
 }
