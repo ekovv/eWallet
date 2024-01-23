@@ -286,7 +286,6 @@ func TestHandler_Status(t *testing.T) {
 			service := mocks.NewService(t)
 			h := NewHandler(service, config.Config{})
 			tt.serviceMock(service)
-
 			path := "/api/v1/wallet/:walletId"
 			g.GET(path, h.Status)
 			w := httptest.NewRecorder()
