@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"eWallet/config"
+	"eWallet/internal/constants"
 	"eWallet/internal/domains/mocks"
 	"eWallet/internal/shema"
 	"encoding/json"
@@ -146,6 +147,97 @@ func TestHandler_Transactions(t *testing.T) {
 
 			if w.Code != tt.wantCode {
 				t.Errorf("got %d, want %d", w.Code, tt.wantCode)
+			}
+		})
+	}
+}
+
+func TestHandler_History(t *testing.T) {
+	tests := []struct {
+		name        string
+		id          string
+		serviceMock serviceMock
+		wantCode    int
+		want        []shema.HistoryTransfers
+	}{
+		{
+			name: "OK1",
+			id:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+			serviceMock: func(c *mocks.Service) {
+				c.Mock.On("GetHistory", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn").Return(
+					[]shema.HistoryTransfers{
+						{
+							Time:   "2024-01-23 13:50:19.000000 +00:00",
+							From:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+							To:     "aqaWKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+							Amount: 20.0,
+						},
+						{
+							Time:   "2024-01-23 13:50:58.000000 +00:00",
+							From:   "ay7uwX3YeQ6jRWxJ32Zbxwq17kAdEn",
+							To:     "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+							Amount: 30.0,
+						},
+					}, nil).Times(1)
+			},
+			wantCode: http.StatusOK,
+			want: []shema.HistoryTransfers{
+				{
+					Time:   "2024-01-23 13:50:19.000000 +00:00",
+					From:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+					To:     "aqaWKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+					Amount: 20.0,
+				},
+				{
+					Time:   "2024-01-23 13:50:58.000000 +00:00",
+					From:   "ay7uwX3YeQ6jRWxJ32Zbxwq17kAdEn",
+					To:     "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+					Amount: 30.0,
+				},
+			},
+		},
+		{
+			name: "BAD1",
+			id:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq",
+			serviceMock: func(c *mocks.Service) {
+				c.Mock.On("GetHistory", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq").Return(nil, constants.ErrNotFromPerson).Times(1)
+			},
+			wantCode: http.StatusNotFound,
+			want:     nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := gin.Default()
+
+			service := mocks.NewService(t)
+			h := NewHandler(service, config.Config{})
+
+			path := "/api/v1/wallet/:walletId/history"
+			g.GET(path, h.History)
+			tt.serviceMock(service)
+			w := httptest.NewRecorder()
+			request := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/wallet/%s/history", tt.id), nil)
+
+			g.ServeHTTP(w, request)
+
+			if w.Code != tt.wantCode {
+				t.Errorf("got %d, want %d", w.Code, tt.wantCode)
+			}
+			wantResponse, err := json.Marshal(tt.want)
+			if err != nil {
+				fmt.Errorf("failed json")
+				return
+			}
+
+			response, err := json.Marshal(w.Body)
+			if err != nil {
+				fmt.Errorf("failed json")
+				return
+			}
+			if bytes.Equal(wantResponse, response) {
+				t.Errorf("got %s, want %v", w.Body, tt.want)
 			}
 		})
 	}
