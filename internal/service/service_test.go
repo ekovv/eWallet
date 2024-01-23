@@ -147,3 +147,54 @@ func TestService_GetHistory(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GetStatus(t *testing.T) {
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name        string
+		args        args
+		storageMock storageMock
+		wantErr     error
+	}{
+		{
+			name: "OK1",
+			args: args{
+				id: "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
+			},
+
+			storageMock: func(c *mocks.Storage) {
+				c.Mock.On("TakeWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn").Return("Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 120.0, nil).Times(1)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "BAD",
+			args: args{
+				id: "Oz0WKX3YeQ6jRWxJ32Zbxwq1ay3mdi",
+			},
+
+			storageMock: func(c *mocks.Storage) {
+				c.Mock.On("TakeWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq1ay3mdi").Return("", 0.0, constants.ErrNotFromPerson).Times(1)
+			},
+			wantErr: constants.ErrNotFromPerson,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			storage := mocks.NewStorage(t)
+			tt.storageMock(storage)
+			logger, err := zap.NewProduction()
+
+			service := Service{
+				storage: storage,
+				logger:  logger,
+			}
+			_, _, err = service.GetStatus(tt.args.id)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("got %v, want %v", err, tt.wantErr)
+			}
+		})
+	}
+}
