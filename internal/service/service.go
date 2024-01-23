@@ -81,7 +81,7 @@ func (s *Service) Transaction(from string, to string, amount float64) error {
 	}
 
 	if balance-amount < 0 {
-		return fmt.Errorf("bad amount")
+		return constants.ErrBadAmount
 	}
 
 	balance = balance - amount
