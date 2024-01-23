@@ -112,5 +112,20 @@ func (s *Handler) History(c *gin.Context) {
 }
 
 func (s *Handler) Status(c *gin.Context) {
-
+	id := c.Param("walletId")
+	var res shema.Wallet
+	idOfWallet, balance, err := s.service.GetStatus(id)
+	if err != nil {
+		if errors.Is(err, constants.ErrNotFromPerson) {
+			c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	res.ID = idOfWallet
+	res.Balance = balance
+	bytes, err := json.MarshalIndent(res, "", "    ")
+	c.Status(http.StatusOK)
+	c.Writer.Write(bytes)
 }
