@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"eWallet/config"
 	"eWallet/internal/domains/mocks"
+	"eWallet/internal/shema"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,7 +22,7 @@ func TestHandler_CreateWallet(t *testing.T) {
 		name        string
 		serviceMock serviceMock
 		wantCode    int
-		want        Wallet
+		want        shema.Wallet
 	}{
 		{
 			name: "OK#1",
@@ -29,7 +30,7 @@ func TestHandler_CreateWallet(t *testing.T) {
 				c.Mock.On("GenerateWallet").Return("BXbzKE4P62ui6evzzeB5wYLoO1r0Al", 100.0, nil).Times(1)
 			},
 			wantCode: http.StatusOK,
-			want:     Wallet{ID: "BXbzKE4P62ui6evzzeB5wYLoO1r0Al", Balance: 100},
+			want:     shema.Wallet{ID: "BXbzKE4P62ui6evzzeB5wYLoO1r0Al", Balance: 100},
 		},
 		{
 			name: "OK#2",
@@ -37,7 +38,7 @@ func TestHandler_CreateWallet(t *testing.T) {
 				c.Mock.On("GenerateWallet").Return("BXbzKE4P62ui6qwereB5wYLoO1r0Al", 100.0, nil).Times(1)
 			},
 			wantCode: http.StatusOK,
-			want:     Wallet{ID: "BXbzKE4P62ui6qwereB5wYLoO1r0Al", Balance: 100},
+			want:     shema.Wallet{ID: "BXbzKE4P62ui6qwereB5wYLoO1r0Al", Balance: 100},
 		},
 		{
 			name: "BAD",
@@ -45,7 +46,7 @@ func TestHandler_CreateWallet(t *testing.T) {
 				c.Mock.On("GenerateWallet").Return("", 0.0, errors.New("can't create id")).Times(1)
 			},
 			wantCode: http.StatusBadRequest,
-			want:     Wallet{},
+			want:     shema.Wallet{},
 		},
 	}
 
