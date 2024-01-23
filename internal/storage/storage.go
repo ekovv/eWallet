@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"eWallet/config"
+	"errors"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -47,6 +48,46 @@ func (s *DBStorage) CheckConnection() error {
 	return nil
 }
 
-func (s *DBStorage) SaveWallet(id string, balance float64) error {
+func (s *DBStorage) Close() error {
+	return s.conn.Close()
+}
 
+func (s *DBStorage) SaveWallet(id string, balance float64) error {
+	insertQuery := `INSERT INTO wallets (idOfWallet, balance) 
+		VALUES ($1, $2)
+		ON CONFLICT (idOfWallet) 
+		DO UPDATE SET balance = $2`
+	_, err := s.conn.Exec(insertQuery, id, balance)
+
+	if err != nil {
+		return fmt.Errorf("failed to save id and balance in db: %v", err)
+	}
+	return nil
+}
+
+func (s *DBStorage) TakeWallet(id string) (string, float64, error) {
+	row := s.conn.QueryRow("SELECT idOfWallet, balance FROM wallets WHERE idOfWallet = $1", id)
+	var idOfWallet string
+	var balance float64
+	err := row.Scan(&idOfWallet, &balance)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", 0.0, fmt.Errorf("no idOfWallet from person")
+		} else {
+			return "", 0.0, fmt.Errorf("error: %w", err)
+		}
+	}
+	return idOfWallet, balance, nil
+}
+
+func (s *DBStorage) UpdateWallet(id string, balance float64) error {
+	_, err := s.conn.Exec("UPDATE wallets SET balance = balance + $1 WHERE idofwallet = $2", balance, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("no idOfWallet to person")
+		} else {
+			return fmt.Errorf("didn't update balance: %w", err)
+		}
+	}
+	return nil
 }
