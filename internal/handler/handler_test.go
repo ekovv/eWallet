@@ -242,3 +242,77 @@ func TestHandler_History(t *testing.T) {
 		})
 	}
 }
+
+func TestHandler_Status(t *testing.T) {
+	tests := []struct {
+		name        string
+		id          string
+		serviceMock serviceMock
+		wantCode    int
+		want        shema.Wallet
+	}{
+		{
+			name: "OK#1",
+			id:   "BXbzKE4P62ui6evzzeB5wYLoO1r0Al",
+			serviceMock: func(c *mocks.Service) {
+				c.Mock.On("GetStatus", "BXbzKE4P62ui6evzzeB5wYLoO1r0Al").Return("BXbzKE4P62ui6evzzeB5wYLoO1r0Al", 120.0, nil).Times(1)
+			},
+			wantCode: http.StatusOK,
+			want:     shema.Wallet{ID: "BXbzKE4P62ui6evzzeB5wYLoO1r0Al", Balance: 120},
+		},
+		{
+			name: "OK#2",
+			id:   "BXbzKE4P62ui6qwereB5wYLoO1r0Al",
+			serviceMock: func(c *mocks.Service) {
+				c.Mock.On("GetStatus", "BXbzKE4P62ui6qwereB5wYLoO1r0Al").Return("BXbzKE4P62ui6qwereB5wYLoO1r0Al", 20.0, nil).Times(1)
+			},
+			wantCode: http.StatusOK,
+			want:     shema.Wallet{ID: "BXbzKE4P62ui6qwereB5wYLoO1r0Al", Balance: 20},
+		},
+		{
+			name: "BAD",
+			id:   "BXbzKE4P62ui6qwereB5wYLoO115at",
+			serviceMock: func(c *mocks.Service) {
+				c.Mock.On("GetStatus", "BXbzKE4P62ui6qwereB5wYLoO115at").Return("", 0.0, constants.ErrNotFromPerson).Times(1)
+			},
+			wantCode: http.StatusNotFound,
+			want:     shema.Wallet{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := gin.Default()
+			service := mocks.NewService(t)
+			h := NewHandler(service, config.Config{})
+			tt.serviceMock(service)
+
+			path := "/api/v1/wallet/:walletId"
+			g.GET(path, h.Status)
+			w := httptest.NewRecorder()
+			request := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/wallet/%s", tt.id), nil)
+
+			g.ServeHTTP(w, request)
+
+			if w.Code != tt.wantCode {
+				t.Errorf("got %d, want %d", w.Code, tt.wantCode)
+			}
+
+			wantResponse, err := json.Marshal(tt.want)
+			if err != nil {
+				fmt.Errorf("failed json")
+				return
+			}
+
+			response, err := json.Marshal(w.Body)
+			if err != nil {
+				fmt.Errorf("failed json")
+				return
+			}
+
+			if bytes.Equal(wantResponse, response) {
+				t.Errorf("got %s, want %v", w.Body, tt.want)
+			}
+		})
+	}
+}
