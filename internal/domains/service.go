@@ -7,4 +7,5 @@ type Service interface {
 	GenerateWallet() (string, float64, error)
 	Transaction(from string, to string, amount float64) error
 	GetHistory(id string) ([]shema.HistoryTransfers, error)
+	GetStatus(id string) (string, float64, error)
 }

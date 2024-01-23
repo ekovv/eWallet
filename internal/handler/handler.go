@@ -110,3 +110,7 @@ func (s *Handler) History(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 
 }
+
+func (s *Handler) Status(c *gin.Context) {
+
+}

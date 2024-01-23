@@ -117,5 +117,18 @@ func (s *Service) GetHistory(id string) ([]shema.HistoryTransfers, error) {
 		}
 	}
 	return history, nil
+}
 
+func (s *Service) GetStatus(id string) (string, float64, error) {
+	idOfWallet, balance, err := s.storage.TakeWallet(id)
+	if err != nil {
+		if errors.Is(err, constants.ErrNotFromPerson) {
+			s.logger.Info("no idOfWallet from person")
+			return "", 0.0, constants.ErrNotFromPerson
+		} else {
+			s.logger.Info("didn't take from db")
+			return "", 0.0, fmt.Errorf("didn't take from db: %w", err)
+		}
+	}
+	return idOfWallet, balance, nil
 }
