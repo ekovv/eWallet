@@ -1,6 +1,7 @@
 package service
 
 import (
+	"eWallet/internal/constants"
 	"eWallet/internal/domains"
 	"errors"
 	"fmt"
@@ -63,7 +64,7 @@ func (s *Service) Transaction(from string, to string, amount float64) error {
 	if err != nil {
 		if errors.Is(err, fmt.Errorf("no idOfWallet from person")) {
 			s.logger.Info("no idOfWallet from person")
-			return fmt.Errorf("no idOfWallet from person")
+			return constants.ErrNotFromPerson
 		} else {
 			s.logger.Info("didn't take from db")
 			return fmt.Errorf("didn't take from db: %w", err)
@@ -83,7 +84,7 @@ func (s *Service) Transaction(from string, to string, amount float64) error {
 	if err != nil {
 		if errors.Is(err, fmt.Errorf("no idOfWallet to person")) {
 			s.logger.Info("no idOfWallet to person")
-			return fmt.Errorf("no idOfWallet to person")
+			return constants.ErrNotToPerson
 		} else {
 			s.logger.Info("didn't update to db")
 			return fmt.Errorf("didn't update to db: %w", err)

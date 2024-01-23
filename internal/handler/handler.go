@@ -2,6 +2,7 @@ package handler
 
 import (
 	"eWallet/config"
+	"eWallet/internal/constants"
 	"eWallet/internal/domains"
 	"encoding/json"
 	"errors"
@@ -66,11 +67,11 @@ func (s *Handler) Transactions(c *gin.Context) {
 	}
 	err = s.service.Transaction(from, money.To, money.Amount)
 	if err != nil {
-		if errors.Is(err, fmt.Errorf("no idOfWallet from person")) {
+		if errors.Is(err, constants.ErrNotFromPerson) {
 			c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
 			return
 		}
-		if errors.Is(err, fmt.Errorf("no idOfWallet to person")) {
+		if errors.Is(err, constants.ErrNotToPerson) {
 			c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 			return
 		}
