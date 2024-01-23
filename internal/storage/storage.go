@@ -3,6 +3,8 @@ package storage
 import (
 	"database/sql"
 	"eWallet/config"
+	"eWallet/internal/constants"
+	"eWallet/internal/shema"
 	"errors"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
@@ -72,7 +74,7 @@ func (s *DBStorage) TakeWallet(id string) (string, float64, error) {
 	err := row.Scan(&idOfWallet, &balance)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", 0.0, fmt.Errorf("no idOfWallet from person")
+			return "", 0.0, constants.ErrNotFromPerson
 		} else {
 			return "", 0.0, fmt.Errorf("error: %w", err)
 		}
@@ -84,10 +86,46 @@ func (s *DBStorage) UpdateWallet(id string, balance float64) error {
 	_, err := s.conn.Exec("UPDATE wallets SET balance = balance + $1 WHERE idofwallet = $2", balance, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("no idOfWallet to person")
+			return constants.ErrNotToPerson
 		} else {
 			return fmt.Errorf("didn't update balance: %w", err)
 		}
 	}
 	return nil
+}
+
+func (s *DBStorage) SaveInfo(from string, to string, amount float64, time string) error {
+	insertQuery := `INSERT INTO history (time, from_wallet, to_wallet, amount) VALUES ($1, $2, $3, $4)`
+	_, err := s.conn.Exec(insertQuery, time, from, to, amount)
+	if err != nil {
+		return fmt.Errorf("didn't save info: %w", err)
+	}
+	return nil
+}
+
+func (s *DBStorage) GetInfo(id string) ([]shema.HistoryTransfers, error) {
+	rows, err := s.conn.Query("SELECT time, from_wallet, to_wallet, amount FROM history WHERE from_wallet = $1 OR to_wallet = $1", id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, constants.ErrNotFromPerson
+		} else {
+			return nil, fmt.Errorf("didn't get info: %w", err)
+		}
+	}
+	defer rows.Close()
+
+	var history []shema.HistoryTransfers
+	for rows.Next() {
+		var t shema.HistoryTransfers
+		err := rows.Scan(&t.Time, &t.From, &t.To, &t.Amount)
+		if err != nil {
+			return nil, err
+		}
+		history = append(history, t)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return history, nil
 }

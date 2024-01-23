@@ -1,4 +1,4 @@
-package handler
+package shema
 
 type Wallet struct {
 	ID      string  `json:"id"`
@@ -6,6 +6,13 @@ type Wallet struct {
 }
 
 type Transfer struct {
+	To     string  `json:"to"`
+	Amount float64 `json:"amount"`
+}
+
+type HistoryTransfers struct {
+	Time   string  `json:"time"`
+	From   string  `json:"from"`
 	To     string  `json:"to"`
 	Amount float64 `json:"amount"`
 }
