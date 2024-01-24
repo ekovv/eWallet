@@ -30,3 +30,7 @@ d - connection string -d=connection string
   "dsn": "postgres://bestuser:bestuser@localhost:5432/your_db_name?sslmode=disable"
 }
 ```
+
+# 💎 For working with Docker
+
+
