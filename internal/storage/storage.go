@@ -92,6 +92,7 @@ func (s *DBStorage) UpdateWallet(id string, balance float64) error {
 			return fmt.Errorf("didn't update balance: %w", err)
 		}
 	}
+
 	return nil
 }
 
