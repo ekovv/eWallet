@@ -36,9 +36,6 @@ d - connection string -d=connection string
 ```
 docker run --name ewallet-pg -p 4999:5432 -e POSTGRES_USER=username -e POSTGRES_PASSWORD=password -e POSTGRES_DB=db_name -d postgres:13.3
 ```
-
--Build app-image
-
 -Run
 ```
 docker run --name your-app-name -p host-port:container-port -d your-app-image
