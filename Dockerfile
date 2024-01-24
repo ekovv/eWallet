@@ -1,4 +1,3 @@
-# Используем официальный образ Golang
 FROM golang:1.21
 
 WORKDIR /app
