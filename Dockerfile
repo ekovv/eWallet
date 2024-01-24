@@ -32,6 +32,7 @@
 #CMD ["./main"]
 # Используйте официальный образ Golang 1.21 для сборки исполняемого файла
 # Используйте официальный образ Golang 1.21 для сборки исполняемого файла
+# Используйте официальный образ Golang 1.21 для сборки исполняемого файла
 FROM golang:1.21 as builder
 
 # Установите рабочую директорию внутри контейнера
@@ -50,7 +51,6 @@ COPY migrations migrations
 # Соберите приложение
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd
 
-
 # Используйте официальный образ alpine для исполняемого файла
 FROM alpine:latest
 
@@ -62,10 +62,11 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 
 # Установите переменную окружения для строки подключения к базе данных
-ENV DB_CONNECTION_STRING="postgres://bestuser:bestuser@localhost:5432/ewallet?sslmode=disable"
+ENV DB_CONNECTION_STRING="postgres://bestuser:bestuser@host.docker.internal:5432/?sslmode=disable"
 
 # Запустите приложение
 CMD ["./main"]
+
 
 
 
