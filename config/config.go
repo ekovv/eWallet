@@ -26,7 +26,7 @@ const addr = ":8080"
 func init() {
 	f.host = flag.String("a", addr, "-a=")
 	f.db = flag.String("d", "", "-d=db")
-	f.cFile = flag.String("c", "", "config file")
+	f.cFile = flag.String("c", "", "-c=")
 
 }
 
