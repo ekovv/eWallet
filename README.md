@@ -27,6 +27,6 @@ d - connection string -d=connection string
 ```json
 {
   "host": "localhost:8080",
-  "dsn": "postgres://bestuser:bestuser@localhost:5432/your_db_name?sslmode=disable",
+  "dsn": "postgres://bestuser:bestuser@localhost:5432/your_db_name?sslmode=disable"
 }
 ```
