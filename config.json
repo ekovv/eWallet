@@ -1,4 +1,4 @@
 {
   "host": "localhost:8080",
-  "dsn": "postgres://bestuser:bestuser@localhost:5432/?sslmode=disable"
+  "dsn": "postgres://bestuser:bestuser@localhost:5432/ewallet?sslmode=disable"
 }

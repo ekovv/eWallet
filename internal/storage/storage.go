@@ -124,7 +124,9 @@ func (s *DBStorage) GetInfo(id string) ([]shema.HistoryTransfers, error) {
 		}
 		history = append(history, t)
 	}
-
+	if history == nil {
+		return nil, constants.ErrNotFromPerson
+	}
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
