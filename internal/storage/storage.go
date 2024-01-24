@@ -47,6 +47,7 @@ func (s *DBStorage) CheckConnection() error {
 	if err := s.conn.Ping(); err != nil {
 		return fmt.Errorf("failed to connect to db %w", err)
 	}
+
 	return nil
 }
 
