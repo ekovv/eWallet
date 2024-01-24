@@ -47,6 +47,7 @@ func (s *DBStorage) CheckConnection() error {
 	if err := s.conn.Ping(); err != nil {
 		return fmt.Errorf("failed to connect to db %w", err)
 	}
+
 	return nil
 }
 
@@ -123,7 +124,9 @@ func (s *DBStorage) GetInfo(id string) ([]shema.HistoryTransfers, error) {
 		}
 		history = append(history, t)
 	}
-
+	if history == nil {
+		return nil, constants.ErrNotFromPerson
+	}
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
