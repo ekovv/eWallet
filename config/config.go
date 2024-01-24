@@ -21,7 +21,7 @@ type F struct {
 
 var f F
 
-const addr = "localhost:8080"
+const addr = ":8080"
 
 func init() {
 	f.host = flag.String("a", addr, "-a=")
@@ -35,7 +35,7 @@ func New() (c Config) {
 	if envHost := os.Getenv("HOST"); envHost != "" {
 		f.host = &envHost
 	}
-	if envDB := os.Getenv("DATABASE_DSN"); envDB != "" {
+	if envDB := os.Getenv("DB_CONNECTION_STRING"); envDB != "" {
 		f.db = &envDB
 	}
 	c.Host = *f.host
