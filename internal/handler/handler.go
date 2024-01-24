@@ -22,6 +22,7 @@ func NewHandler(service domains.Service, cnf config.Config) *Handler {
 		engine:  router,
 		config:  cnf,
 	}
+
 	Route(router, h)
 	return h
 }
