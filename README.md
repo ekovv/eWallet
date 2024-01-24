@@ -21,3 +21,12 @@ GET /api/v1/wallet/:walletId
 a - ip for REST -a=host
 d - connection string -d=connection string
 ```
+
+# 🧩 Config
+
+```json
+{
+  "host": "localhost:8080",
+  "dsn": "postgres://bestuser:bestuser@localhost:5432/your_db_name?sslmode=disable",
+}
+```
