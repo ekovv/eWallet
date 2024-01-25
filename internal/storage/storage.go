@@ -56,10 +56,7 @@ func (s *DBStorage) Close() error {
 }
 
 func (s *DBStorage) SaveWallet(id string, balance float64) error {
-	insertQuery := `INSERT INTO wallets (idOfWallet, balance) 
-		VALUES ($1, $2)
-		ON CONFLICT (idOfWallet) 
-		DO UPDATE SET balance = $2`
+	insertQuery := `INSERT INTO wallets (idOfWallet, balance) VALUES ($1, $2) ON CONFLICT (idOfWallet) DO UPDATE SET balance = $2`
 	_, err := s.conn.Exec(insertQuery, id, balance)
 
 	if err != nil {
