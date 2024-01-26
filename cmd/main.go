@@ -5,7 +5,6 @@ import (
 	"eWallet/internal/handler"
 	"eWallet/internal/service"
 	"eWallet/internal/storage"
-	"fmt"
 	"log"
 )
 
@@ -13,10 +12,10 @@ func main() {
 	cnfg := config.New()
 	stM, err := storage.NewDBStorage(cnfg)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("Error creating storage: %s", err)
 		return
 	}
-	sr := service.NewService(stM)
+	sr := service.NewService(stM, cnfg)
 	if err != nil {
 		log.Fatalf("Error creating service: %s", err)
 		return

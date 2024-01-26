@@ -35,8 +35,9 @@ func (s *Handler) Start() {
 }
 
 func (s *Handler) CreateWallet(c *gin.Context) {
+	ctx := c.Request.Context()
 	var res shema.Wallet
-	id, balance, err := s.service.GenerateWallet()
+	id, balance, err := s.service.GenerateWallet(ctx)
 	if err != nil {
 		HandlerErr(c, err)
 		return
@@ -54,6 +55,7 @@ func (s *Handler) CreateWallet(c *gin.Context) {
 }
 
 func (s *Handler) Transactions(c *gin.Context) {
+	ctx := c.Request.Context()
 	from := c.Param("walletId")
 	var money shema.Transfer
 	err := c.ShouldBindJSON(&money)
@@ -61,7 +63,7 @@ func (s *Handler) Transactions(c *gin.Context) {
 		HandlerErr(c, err)
 		return
 	}
-	err = s.service.Transaction(from, money.To, money.Amount)
+	err = s.service.Transaction(from, money.To, money.Amount, ctx)
 	if err != nil {
 		HandlerErr(c, err)
 		return
@@ -70,8 +72,9 @@ func (s *Handler) Transactions(c *gin.Context) {
 }
 
 func (s *Handler) History(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("walletId")
-	history, err := s.service.GetHistory(id)
+	history, err := s.service.GetHistory(id, ctx)
 	if err != nil {
 		HandlerErr(c, err)
 		return
@@ -91,9 +94,10 @@ func (s *Handler) History(c *gin.Context) {
 }
 
 func (s *Handler) Status(c *gin.Context) {
+	ctx := c.Request.Context()
 	id := c.Param("walletId")
 	var res shema.Wallet
-	idOfWallet, balance, err := s.service.GetStatus(id)
+	idOfWallet, balance, err := s.service.GetStatus(id, ctx)
 	if err != nil {
 		HandlerErr(c, err)
 		return

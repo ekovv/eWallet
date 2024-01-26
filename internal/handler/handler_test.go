@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -28,7 +29,7 @@ func TestHandler_CreateWallet(t *testing.T) {
 		{
 			name: "OK#1",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GenerateWallet").Return("BXbzKE4P62ui6evzzeB5wYLoO1r0Al", 100.0, nil).Times(1)
+				c.Mock.On("GenerateWallet", mock.Anything).Return("BXbzKE4P62ui6evzzeB5wYLoO1r0Al", 100.0, nil).Times(1)
 			},
 			wantCode: http.StatusOK,
 			want:     shema.Wallet{ID: "BXbzKE4P62ui6evzzeB5wYLoO1r0Al", Balance: 100},
@@ -36,7 +37,7 @@ func TestHandler_CreateWallet(t *testing.T) {
 		{
 			name: "OK#2",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GenerateWallet").Return("BXbzKE4P62ui6qwereB5wYLoO1r0Al", 100.0, nil).Times(1)
+				c.Mock.On("GenerateWallet", mock.Anything).Return("BXbzKE4P62ui6qwereB5wYLoO1r0Al", 100.0, nil).Times(1)
 			},
 			wantCode: http.StatusOK,
 			want:     shema.Wallet{ID: "BXbzKE4P62ui6qwereB5wYLoO1r0Al", Balance: 100},
@@ -44,7 +45,7 @@ func TestHandler_CreateWallet(t *testing.T) {
 		{
 			name: "BAD",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GenerateWallet").Return("", 0.0, errors.New("can't create id")).Times(1)
+				c.Mock.On("GenerateWallet", mock.Anything).Return("", 0.0, errors.New("can't create id")).Times(1)
 			},
 			wantCode: http.StatusBadRequest,
 			want:     shema.Wallet{},
@@ -108,7 +109,7 @@ func TestHandler_Transactions(t *testing.T) {
 				Amount: 20.0,
 			},
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("Transaction", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", "0MEe1ArlKnX5ea0ByX85PD83QBwpJa", 20.0).Return(nil).Times(1)
+				c.Mock.On("Transaction", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", "0MEe1ArlKnX5ea0ByX85PD83QBwpJa", 20.0, mock.Anything).Return(nil).Times(1)
 			},
 			wantCode: http.StatusOK,
 		},
@@ -120,7 +121,7 @@ func TestHandler_Transactions(t *testing.T) {
 				Amount: 20.0,
 			},
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("Transaction", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", "jddjkjdksjdkjskd", 20.0).Return(fmt.Errorf("no idOfWallet to person")).Times(1)
+				c.Mock.On("Transaction", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", "jddjkjdksjdkjskd", 20.0, mock.Anything).Return(fmt.Errorf("no idOfWallet to person")).Times(1)
 			},
 			wantCode: http.StatusBadRequest,
 		},
@@ -164,7 +165,7 @@ func TestHandler_History(t *testing.T) {
 			name: "OK1",
 			id:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GetHistory", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn").Return(
+				c.Mock.On("GetHistory", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", mock.Anything).Return(
 					[]shema.HistoryTransfers{
 						{
 							Time:   "2024-01-23 13:50:19.000000 +00:00",
@@ -200,7 +201,7 @@ func TestHandler_History(t *testing.T) {
 			name: "BAD1",
 			id:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GetHistory", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq").Return(nil, constants.ErrNotFromPerson).Times(1)
+				c.Mock.On("GetHistory", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq", mock.Anything).Return(nil, constants.ErrNotFromPerson).Times(1)
 			},
 			wantCode: http.StatusNotFound,
 			want:     nil,
@@ -255,7 +256,7 @@ func TestHandler_Status(t *testing.T) {
 			name: "OK#1",
 			id:   "BXbzKE4P62ui6evzzeB5wYLoO1r0Al",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GetStatus", "BXbzKE4P62ui6evzzeB5wYLoO1r0Al").Return("BXbzKE4P62ui6evzzeB5wYLoO1r0Al", 120.0, nil).Times(1)
+				c.Mock.On("GetStatus", "BXbzKE4P62ui6evzzeB5wYLoO1r0Al", mock.Anything).Return("BXbzKE4P62ui6evzzeB5wYLoO1r0Al", 120.0, nil).Times(1)
 			},
 			wantCode: http.StatusOK,
 			want:     shema.Wallet{ID: "BXbzKE4P62ui6evzzeB5wYLoO1r0Al", Balance: 120},
@@ -264,7 +265,7 @@ func TestHandler_Status(t *testing.T) {
 			name: "OK#2",
 			id:   "BXbzKE4P62ui6qwereB5wYLoO1r0Al",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GetStatus", "BXbzKE4P62ui6qwereB5wYLoO1r0Al").Return("BXbzKE4P62ui6qwereB5wYLoO1r0Al", 20.0, nil).Times(1)
+				c.Mock.On("GetStatus", "BXbzKE4P62ui6qwereB5wYLoO1r0Al", mock.Anything).Return("BXbzKE4P62ui6qwereB5wYLoO1r0Al", 20.0, nil).Times(1)
 			},
 			wantCode: http.StatusOK,
 			want:     shema.Wallet{ID: "BXbzKE4P62ui6qwereB5wYLoO1r0Al", Balance: 20},
@@ -273,7 +274,7 @@ func TestHandler_Status(t *testing.T) {
 			name: "BAD",
 			id:   "BXbzKE4P62ui6qwereB5wYLoO115at",
 			serviceMock: func(c *mocks.Service) {
-				c.Mock.On("GetStatus", "BXbzKE4P62ui6qwereB5wYLoO115at").Return("", 0.0, constants.ErrNotFromPerson).Times(1)
+				c.Mock.On("GetStatus", "BXbzKE4P62ui6qwereB5wYLoO115at", mock.Anything).Return("", 0.0, constants.ErrNotFromPerson).Times(1)
 			},
 			wantCode: http.StatusNotFound,
 			want:     shema.Wallet{},

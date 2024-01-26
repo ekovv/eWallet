@@ -15,6 +15,7 @@ RUN go build -o main ./cmd
 
 ENV DB_CONNECTION_STRING="postgresql://bestuser:bestuser@host.docker.internal:4999/your_name?sslmode=disable"
 ENV HOST=":8080"
+ENV SALT="your_salt"
 
 RUN apt-get update && apt-get install -y postgresql-client
 
