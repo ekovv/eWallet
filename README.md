@@ -7,7 +7,7 @@
 # 📞 Endpoints
 ```http
 POST /api/v1/wallet
-- Create wallet
+- сreate wallet
 POST /api/v1/wallet/:walletId/send
 - transcations
 GET /api/v1/wallet/:walletId/history
@@ -19,7 +19,8 @@ GET /api/v1/wallet/:walletId
 # 🏴‍☠️ Flags
 ```
 a - ip for REST -a=host
-d - connection string -d=connection string
+d - db connection string -d=connection string
+s - salt -s=your_salt
 ```
 
 # 🧩 Config
@@ -27,7 +28,8 @@ d - connection string -d=connection string
 ```json
 {
   "host": "localhost:8080",
-  "dsn": "postgres://bestuser:bestuser@localhost:5432/your_db_name?sslmode=disable"
+  "dsn": "postgres://bestuser:bestuser@localhost:5432/your_db_name?sslmode=disable",
+  "salt": "your_salt"
 }
 ```
 
