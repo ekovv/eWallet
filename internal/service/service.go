@@ -36,7 +36,7 @@ func (s *Service) GenerateWallet(ctx context.Context) (string, float64, error) {
 		return "", 0.0, err
 	}
 	balance := 100.0
-	err = s.storage.SaveWallet(id, balance, ctx)
+	err = s.storage.SaveWallet(ctx, id, balance)
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : %v", log, err))
 		return "", 0.0, err
@@ -66,9 +66,9 @@ func (s *Service) GenerateID() (string, error) {
 	return hash, nil
 }
 
-func (s *Service) Transaction(from string, to string, amount float64, ctx context.Context) error {
+func (s *Service) Transaction(ctx context.Context, from string, to string, amount float64) error {
 	const log = "Service.Transaction"
-	idOfWallet, balance, err := s.storage.TakeWallet(from, ctx)
+	idOfWallet, balance, err := s.storage.TakeWallet(ctx, from)
 	if err != nil {
 		if strings.Contains(err.Error(), "failed to get from person") {
 			s.logger.Info(fmt.Sprintf("%s : %v", log, err))
@@ -84,13 +84,13 @@ func (s *Service) Transaction(from string, to string, amount float64, ctx contex
 	}
 
 	balance = balance - amount
-	err = s.storage.SaveWallet(idOfWallet, balance, ctx)
+	err = s.storage.SaveWallet(ctx, idOfWallet, balance)
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : %v", log, err))
 		return fmt.Errorf("didn't save new balance for from person: %w", err)
 	}
 
-	err = s.storage.UpdateWallet(to, amount, ctx)
+	err = s.storage.UpdateWallet(ctx, to, amount)
 	if err != nil {
 		if strings.Contains(err.Error(), "failed to get to person") {
 			s.logger.Info(fmt.Sprintf("%s : %v", log, err))
@@ -101,7 +101,7 @@ func (s *Service) Transaction(from string, to string, amount float64, ctx contex
 		}
 	}
 	t := time.Now()
-	err = s.storage.SaveInfo(from, to, amount, t.Format(time.RFC3339), ctx)
+	err = s.storage.SaveInfo(ctx, from, to, amount, t.Format(time.RFC3339))
 	if err != nil {
 		s.logger.Info(fmt.Sprintf("%s : %v", log, err))
 		return fmt.Errorf("didn't save history in db: %w", err)
@@ -110,9 +110,9 @@ func (s *Service) Transaction(from string, to string, amount float64, ctx contex
 	return nil
 }
 
-func (s *Service) GetHistory(id string, ctx context.Context) ([]shema.HistoryTransfers, error) {
+func (s *Service) GetHistory(ctx context.Context, id string) ([]shema.HistoryTransfers, error) {
 	const log = "Service.GetHistory"
-	history, err := s.storage.GetInfo(id, ctx)
+	history, err := s.storage.GetInfo(ctx, id)
 	if err != nil {
 		if strings.Contains(err.Error(), "failed to get from person") {
 			s.logger.Info(fmt.Sprintf("%s : %v", log, err))
@@ -125,9 +125,9 @@ func (s *Service) GetHistory(id string, ctx context.Context) ([]shema.HistoryTra
 	return history, nil
 }
 
-func (s *Service) GetStatus(id string, ctx context.Context) (string, float64, error) {
+func (s *Service) GetStatus(ctx context.Context, id string) (string, float64, error) {
 	const log = "Service.GetStatus"
-	idOfWallet, balance, err := s.storage.TakeWallet(id, ctx)
+	idOfWallet, balance, err := s.storage.TakeWallet(ctx, id)
 	if err != nil {
 		if strings.Contains(err.Error(), "failed to get from person") {
 			s.logger.Info(fmt.Sprintf("%s : %v", log, err))

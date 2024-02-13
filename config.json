@@ -1,5 +1,5 @@
 {
   "host": "localhost:8080",
-  "dsn": "postgres://bestuser:bestuser@localhost:5432/db_name?sslmode=disable",
-  "salt": "your_salt"
+  "dsn": "postgres://bestuser:bestuser@localhost:5432/?sslmode=disable",
+  "salt": "my salt"
 }

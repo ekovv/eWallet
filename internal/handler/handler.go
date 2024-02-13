@@ -63,7 +63,7 @@ func (s *Handler) Transactions(c *gin.Context) {
 		HandlerErr(c, err)
 		return
 	}
-	err = s.service.Transaction(from, money.To, money.Amount, ctx)
+	err = s.service.Transaction(ctx, from, money.To, money.Amount)
 	if err != nil {
 		HandlerErr(c, err)
 		return
@@ -74,7 +74,7 @@ func (s *Handler) Transactions(c *gin.Context) {
 func (s *Handler) History(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("walletId")
-	history, err := s.service.GetHistory(id, ctx)
+	history, err := s.service.GetHistory(ctx, id)
 	if err != nil {
 		HandlerErr(c, err)
 		return
@@ -97,7 +97,7 @@ func (s *Handler) Status(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("walletId")
 	var res shema.Wallet
-	idOfWallet, balance, err := s.service.GetStatus(id, ctx)
+	idOfWallet, balance, err := s.service.GetStatus(ctx, id)
 	if err != nil {
 		HandlerErr(c, err)
 		return

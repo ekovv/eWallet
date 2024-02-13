@@ -35,10 +35,10 @@ func TestService_Transaction(t *testing.T) {
 			},
 
 			storageMock: func(c *mocks.Storage) {
-				c.Mock.On("TakeWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", mock.Anything).Return("Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 100.0, nil).Times(1)
-				c.Mock.On("SaveInfo", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", "0MEe1ArlKnX5ea0ByX85PD83QBwpJa", 20.0, mock.Anything, mock.Anything).Return(nil).Times(1)
-				c.Mock.On("SaveWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 80.0, mock.Anything).Return(nil).Times(1)
-				c.Mock.On("UpdateWallet", "0MEe1ArlKnX5ea0ByX85PD83QBwpJa", 20.0, mock.Anything).Return(nil).Times(1)
+				c.Mock.On("TakeWallet", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn").Return("Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 100.0, nil).Times(1)
+				c.Mock.On("SaveInfo", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", "0MEe1ArlKnX5ea0ByX85PD83QBwpJa", 20.0, mock.Anything).Return(nil).Times(1)
+				c.Mock.On("SaveWallet", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 80.0).Return(nil).Times(1)
+				c.Mock.On("UpdateWallet", mock.Anything, "0MEe1ArlKnX5ea0ByX85PD83QBwpJa", 20.0).Return(nil).Times(1)
 			},
 			wantErr: nil,
 		},
@@ -51,9 +51,9 @@ func TestService_Transaction(t *testing.T) {
 			},
 
 			storageMock: func(c *mocks.Storage) {
-				c.Mock.On("TakeWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", context.Background()).Return("Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 100.0, nil).Times(1)
-				c.Mock.On("SaveWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 80.0, context.Background()).Return(nil).Times(1)
-				c.Mock.On("UpdateWallet", "0MEe1ArlKnX5ea0ByX85PD83ahsyu2", 20.0, context.Background()).Return(constants.ErrNotToPerson).Times(1)
+				c.Mock.On("TakeWallet", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn").Return("Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 100.0, nil).Times(1)
+				c.Mock.On("SaveWallet", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 80.0).Return(nil).Times(1)
+				c.Mock.On("UpdateWallet", mock.Anything, "0MEe1ArlKnX5ea0ByX85PD83ahsyu2", 20.0).Return(constants.ErrNotToPerson).Times(1)
 			},
 			wantErr: constants.ErrNotToPerson,
 		},
@@ -68,7 +68,7 @@ func TestService_Transaction(t *testing.T) {
 				storage: storage,
 				logger:  logger,
 			}
-			err = service.Transaction(tt.args.from, tt.args.to, tt.args.amount, context.Background())
+			err = service.Transaction(context.Background(), tt.args.from, tt.args.to, tt.args.amount)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("got %v, want %v", err, tt.wantErr)
 			}
@@ -88,7 +88,7 @@ func TestService_GetHistory(t *testing.T) {
 			name: "OK1",
 			id:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn",
 			storageMock: func(c *mocks.Storage) {
-				c.Mock.On("GetInfo", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", mock.Anything).Return(
+				c.Mock.On("GetInfo", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn").Return(
 					[]shema.HistoryTransfers{
 						{
 							Time:   "2024-01-23 13:50:19.000000 +00:00",
@@ -124,7 +124,7 @@ func TestService_GetHistory(t *testing.T) {
 			name: "BAD1",
 			id:   "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq",
 			storageMock: func(c *mocks.Storage) {
-				c.Mock.On("GetInfo", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq", mock.Anything).Return(nil, constants.ErrNotFromPerson).Times(1)
+				c.Mock.On("GetInfo", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAewq").Return(nil, constants.ErrNotFromPerson).Times(1)
 			},
 			wantErr: constants.ErrNotFromPerson,
 			want:    nil,
@@ -140,7 +140,7 @@ func TestService_GetHistory(t *testing.T) {
 				storage: storage,
 				logger:  logger,
 			}
-			transfers, err := service.GetHistory(tt.id, context.Background())
+			transfers, err := service.GetHistory(context.Background(), tt.id)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("got %v, want %v", err, tt.wantErr)
 			}
@@ -168,7 +168,7 @@ func TestService_GetStatus(t *testing.T) {
 			},
 
 			storageMock: func(c *mocks.Storage) {
-				c.Mock.On("TakeWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", mock.Anything).Return("Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 120.0, nil).Times(1)
+				c.Mock.On("TakeWallet", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn").Return("Oz0WKX3YeQ6jRWxJ32Zbxwq17kAdEn", 120.0, nil).Times(1)
 			},
 			wantErr: nil,
 		},
@@ -179,7 +179,7 @@ func TestService_GetStatus(t *testing.T) {
 			},
 
 			storageMock: func(c *mocks.Storage) {
-				c.Mock.On("TakeWallet", "Oz0WKX3YeQ6jRWxJ32Zbxwq1ay3mdi", mock.Anything).Return("", 0.0, constants.ErrNotFromPerson).Times(1)
+				c.Mock.On("TakeWallet", mock.Anything, "Oz0WKX3YeQ6jRWxJ32Zbxwq1ay3mdi").Return("", 0.0, constants.ErrNotFromPerson).Times(1)
 			},
 			wantErr: constants.ErrNotFromPerson,
 		},
@@ -194,7 +194,7 @@ func TestService_GetStatus(t *testing.T) {
 				storage: storage,
 				logger:  logger,
 			}
-			_, _, err = service.GetStatus(tt.args.id, context.Background())
+			_, _, err = service.GetStatus(context.Background(), tt.args.id)
 			if !errors.Is(err, tt.wantErr) {
 				t.Errorf("got %v, want %v", err, tt.wantErr)
 			}

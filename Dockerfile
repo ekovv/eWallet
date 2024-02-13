@@ -13,9 +13,9 @@ COPY migrations/00001_init.down.sql .
 
 RUN go build -o main ./cmd
 
-ENV DB_CONNECTION_STRING="postgresql://bestuser:bestuser@host.docker.internal:4999/your_name?sslmode=disable"
+ENV DB_CONNECTION_STRING="postgresql://bestuser:bestuser@host.docker.internal:4999/?sslmode=disable"
 ENV HOST=":8080"
-ENV SALT="your_salt"
+ENV SALT="my salt"
 
 RUN apt-get update && apt-get install -y postgresql-client
 

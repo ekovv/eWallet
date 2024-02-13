@@ -7,10 +7,10 @@ import (
 
 //go:generate go run github.com/vektra/mockery/v3 --name=Storage
 type Storage interface {
-	SaveWallet(id string, balance float64, ctx context.Context) error
+	SaveWallet(ctx context.Context, id string, balance float64) error
 	Close() error
-	TakeWallet(id string, ctx context.Context) (string, float64, error)
-	UpdateWallet(id string, balance float64, ctx context.Context) error
-	SaveInfo(from string, to string, amount float64, time string, ctx context.Context) error
-	GetInfo(id string, ctx context.Context) ([]shema.HistoryTransfers, error)
+	TakeWallet(ctx context.Context, id string) (string, float64, error)
+	UpdateWallet(ctx context.Context, id string, balance float64) error
+	SaveInfo(ctx context.Context, from string, to string, amount float64, time string) error
+	GetInfo(ctx context.Context, id string) ([]shema.HistoryTransfers, error)
 }
