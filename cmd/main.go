@@ -4,13 +4,13 @@ import (
 	"eWallet/config"
 	"eWallet/internal/handler"
 	"eWallet/internal/service"
-	"eWallet/internal/storage"
+	"eWallet/internal/storage/postgresql"
 	"log"
 )
 
 func main() {
 	cnfg := config.New()
-	stM, err := storage.NewDBStorage(cnfg)
+	stM, err := postgresql.NewPostgresStorage(cnfg)
 	if err != nil {
 		log.Fatalf("Error creating storage: %s", err)
 		return
