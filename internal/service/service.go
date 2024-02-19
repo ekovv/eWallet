@@ -68,6 +68,9 @@ func (s *Service) GenerateID() (string, error) {
 
 func (s *Service) Transaction(from string, to string, amount float64, ctx context.Context) error {
 	const log = "Service.Transaction"
+	if amount < 0 {
+		return fmt.Errorf("bad amount")
+	}
 	idOfWallet, balance, err := s.storage.TakeWallet(from, ctx)
 	if err != nil {
 		if strings.Contains(err.Error(), "failed to get from person") {
